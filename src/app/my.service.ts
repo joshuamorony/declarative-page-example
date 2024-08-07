@@ -36,11 +36,10 @@ export class MyService {
 
   error$ = this.request$.pipe(
     filter((notification) => notification.kind === 'E'),
-    dematerialize(),
-    catchError((err) => of(err)),
+    switchMap((notification) => of(notification.error)),
   );
 
-  // this will cause an error for page 5
+  // this will cause an error for page 5 and 7
   private getPage(page: number, filter: string) {
     return of({
       items: [`item for page ${page}`, `with filter ${filter}`, `and another`],
@@ -48,8 +47,8 @@ export class MyService {
       filter,
     }).pipe(
       tap(() => {
-        if (page === 5) {
-          throw new Error('Could not fetch page');
+        if (page === 5 || page === 7) {
+          throw new Error(`Could not fetch page ${page}`);
         }
       }),
     );
